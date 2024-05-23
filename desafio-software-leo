@@ -1,0 +1,58 @@
+import cv2 as cv
+import numpy as np
+
+cap = cv.VideoCapture(0)
+    #Inicia a captura.
+
+
+def draw_contours(img, contours):
+    #Define a função contorno e desenha contorno
+    cv.drawContours(img, contours, -1, (0, 255, 0), 2)
+while True:
+    _, frame = cap.read()
+    #Estabelece com o "_," que cada frame vai ser lido, frame por frame, ai como tem o cap especifica que vai ler frame por frame da função cap usando o read.
+    hsv = cv.cvtColor(frame, cv.COLOR_BGR2HSV)
+    #Realiza a conversão de cada frame BGR (azul, verde e vermelho) pra HSV, que são basicamente formas de representar coisa colorida de imagem.
+
+    menor_laranja = np.array([0, 120, 120])
+    maior_laranja = np.array([20, 255, 255])
+    mask1 = cv.inRange(hsv, menor_laranja, maior_laranja)
+
+    #Essa parte é um pouco difícil de explicar, mas o menor laranja define três valores pra HSV, usando o array pra representar como se fosse uma lista, o mesmo faz o maior laranja. Ai a gente define que o mask1
+    # é o range desses valores percorrendo o HSV, que vai ser o arquivo que vai sofrer a filtragem, dentro do intervalo de maior laranja e menor laranja, definindo eles a valores binários, ou preto ou a cor especificada na faixa.o
+
+
+    menor_laranja = np.array([0, 120, 120])
+    maior_laranja = np.array([20, 255, 255])
+    mask2 = cv.inRange(hsv, menor_laranja, maior_laranja)
+    mask = cv.bitwise_or(mask1, mask2)
+    #Faz praticamente o mesmo que o mask1, a diferença é que o mask2 passa pelo bitwise_or, isso faz basicamente com que a cada dois bits, se pelo menos um deles for 1, o bit de saída será 1, isso realça a cor especificada no intervalo e separa mais aquele local com aquele intervalo, saca?
+
+    # Encontrar contornos na imagem segmentada da cor laranja
+    contours, _ = cv.findContours(mask, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)
+    # O primeiro argumento diz a imagem binária que vou procurar as coisas, o cv EXTERNAL diz que quero apenas o contorno externo e o último considera aproximações pro contorno.
+
+    # Cria uma cópia da imagem original para desenhar os contornos
+    frame_with_contours = frame.copy()
+
+    # Desenha contornos na imagem com fundo preto
+    draw_contours(frame_with_contours, contours)
+
+    # Combina a imagem com contornos e máscara de cor
+    result = cv.bitwise_and(frame_with_contours, frame, mask=mask)
+    M = cv.moments(mask)
+    cX = int(M["m10"] / M["m00"])
+    cY = int(M["m01"] / M["m00"])
+    cv.circle(result, (cX, cY), 5, (255, 255, 255), -1)
+    cv.putText(result, f"Centroide: ({cX}, {cY})", (cX - 25, cY - 25), cv.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
+    #O put serve pra basicamente dizer que vou imprimir uma string em result, seguido do que vou imprimir, sendo cX e cY as coordenadas de antes, ocorre que se eu imprimir elas dessa maneira
+    vai ocorrer a sobreposição do ponto do centroide e da impressão dessas letras. Isso deixaria ruim visualmente falando, por isso fiz -25, pra que imprimisse um pouco mais pra esquerda, em vez de exatamente no ponto.
+    cv.imshow('batatacorderosa', result)
+
+    # Pressione 'Esc' para sair
+    if cv.waitKey(1) & 0xFF == 27:
+        break
+
+# Pra quando terminar, liberar os recursos
+cap.release()
+cv.destroyAllWindows()
