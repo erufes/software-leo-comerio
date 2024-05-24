@@ -46,7 +46,7 @@ while True:
     cv.circle(result, (cX, cY), 5, (255, 255, 255), -1)
     cv.putText(result, f"Centroide: ({cX}, {cY})", (cX - 25, cY - 25), cv.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
     #O put serve pra basicamente dizer que vou imprimir uma string em result, seguido do que vou imprimir, sendo cX e cY as coordenadas de antes, ocorre que se eu imprimir elas dessa maneira
-    vai ocorrer a sobreposição do ponto do centroide e da impressão dessas letras. Isso deixaria ruim visualmente falando, por isso fiz -25, pra que imprimisse um pouco mais pra esquerda, em vez de exatamente no ponto.
+    #vai ocorrer a sobreposição do ponto do centroide e da impressão dessas letras. Isso deixaria ruim visualmente falando, por isso fiz -25, pra que imprimisse um pouco mais pra esquerda, em vez de exatamente no ponto.
     cv.imshow('batatacorderosa', result)
 
     # Pressione 'Esc' para sair
